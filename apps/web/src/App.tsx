@@ -1,7 +1,13 @@
 import Table from "./features/table";
+import Header from "./shared/components/Header";
 
 function App() {
-	return <Table/>
+  return (
+    <>
+      <Header />
+      <Table />
+    </>
+  );
 }
 
 export default App;

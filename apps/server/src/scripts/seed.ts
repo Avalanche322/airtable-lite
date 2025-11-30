@@ -1,4 +1,4 @@
-import { initDb, pool } from "./db";
+import { initDb, pool } from "../db";
 
 function randomChoice<T>(arr: T[]) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -44,7 +44,9 @@ export async function seed(count = 50000, batchSize = 1000) {
         batch.push(makeRow(j + 1));
       }
 
-      const valuesPlaceholders = batch.map((_, idx) => `($${idx + 1})`).join(',');
+      const valuesPlaceholders = batch
+        .map((_, idx) => `($${idx + 1})`)
+        .join(",");
       const text = `INSERT INTO items (data) VALUES ${valuesPlaceholders}`;
       await client.query(text, batch as any[]);
       inserted += batch.length;

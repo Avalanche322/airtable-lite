@@ -23,6 +23,7 @@ import {
   TableRow as MuiTableRow,
   Typography,
   CircularProgress,
+  Container,
 } from "@mui/material";
 import EditableCell from "./components/EditableCell";
 // services functions imported above
@@ -35,22 +36,82 @@ const Table = () => {
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       { accessorKey: "id", header: "ID", size: 60 },
-      { accessorKey: "title", header: "Title", cell: (info) => <EditableCell info={info} field="title" /> },
-      { accessorKey: "category", header: "Category", cell: (info) => <EditableCell info={info} field="category" /> },
-      { accessorKey: "status", header: "Status", cell: (info) => <EditableCell info={info} field="status" /> },
-      { accessorKey: "priority", header: "Priority", cell: (info) => <EditableCell info={info} field="priority" /> },
-      { accessorKey: "owner", header: "Owner", cell: (info) => <EditableCell info={info} field="owner" /> },
-      { accessorKey: "assignee", header: "Assignee", cell: (info) => <EditableCell info={info} field="assignee" /> },
-      { accessorKey: "score", header: "Score", cell: (info) => <EditableCell info={info} field="score" /> },
-      { accessorKey: "size", header: "Size", cell: (info) => <EditableCell info={info} field="size" /> },
-      { accessorKey: "rating", header: "Rating", cell: (info) => <EditableCell info={info} field="rating" /> },
+      {
+        accessorKey: "title",
+        header: "Title",
+        cell: (info) => <EditableCell info={info} field="title" />,
+      },
+      {
+        accessorKey: "category",
+        header: "Category",
+        cell: (info) => <EditableCell info={info} field="category" />,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: (info) => <EditableCell info={info} field="status" />,
+      },
+      {
+        accessorKey: "priority",
+        header: "Priority",
+        cell: (info) => <EditableCell info={info} field="priority" />,
+      },
+      {
+        accessorKey: "owner",
+        header: "Owner",
+        cell: (info) => <EditableCell info={info} field="owner" />,
+      },
+      {
+        accessorKey: "assignee",
+        header: "Assignee",
+        cell: (info) => <EditableCell info={info} field="assignee" />,
+      },
+      {
+        accessorKey: "score",
+        header: "Score",
+        cell: (info) => <EditableCell info={info} field="score" />,
+      },
+      {
+        accessorKey: "size",
+        header: "Size",
+        cell: (info) => <EditableCell info={info} field="size" />,
+      },
+      {
+        accessorKey: "rating",
+        header: "Rating",
+        cell: (info) => <EditableCell info={info} field="rating" />,
+      },
       { accessorKey: "tags", header: "Tags" },
-      { accessorKey: "comments", header: "Comments", cell: (info) => <EditableCell info={info} field="comments" /> },
-      { accessorKey: "notes", header: "Notes", cell: (info) => <EditableCell info={info} field="notes" /> },
-      { accessorKey: "color", header: "Color", cell: (info) => <EditableCell info={info} field="color" /> },
-      { accessorKey: "source", header: "Source", cell: (info) => <EditableCell info={info} field="source" /> },
-      { accessorKey: "type", header: "Type", cell: (info) => <EditableCell info={info} field="type" /> },
-      { accessorKey: "location", header: "Location", cell: (info) => <EditableCell info={info} field="location" /> },
+      {
+        accessorKey: "comments",
+        header: "Comments",
+        cell: (info) => <EditableCell info={info} field="comments" />,
+      },
+      {
+        accessorKey: "notes",
+        header: "Notes",
+        cell: (info) => <EditableCell info={info} field="notes" />,
+      },
+      {
+        accessorKey: "color",
+        header: "Color",
+        cell: (info) => <EditableCell info={info} field="color" />,
+      },
+      {
+        accessorKey: "source",
+        header: "Source",
+        cell: (info) => <EditableCell info={info} field="source" />,
+      },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: (info) => <EditableCell info={info} field="type" />,
+      },
+      {
+        accessorKey: "location",
+        header: "Location",
+        cell: (info) => <EditableCell info={info} field="location" />,
+      },
       { accessorKey: "approved", header: "Approved" },
       { accessorKey: "active", header: "Active" },
       {
@@ -64,23 +125,35 @@ const Table = () => {
         size: 200,
       },
     ],
-    []
+    [],
   );
 
-    const { data, fetchNextPage, isFetching, isLoading } = useInfiniteQuery<ItemsPage, Error, ItemsPage, string[], number | null>({
-      queryKey: ["items"],
-      queryFn: async ({ pageParam = null }) => {
-        const page = await getAllItems({ cursor: pageParam as number | null, fetchSize });
-        return page;
-      },
-      initialPageParam: null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      refetchOnWindowFocus: false,
-    });
+  const { data, fetchNextPage, isFetching, isLoading } = useInfiniteQuery<
+    ItemsPage,
+    Error,
+    ItemsPage,
+    string[],
+    number | null
+  >({
+    queryKey: ["items"],
+    queryFn: async ({ pageParam = null }) => {
+      const page = await getAllItems({
+        cursor: pageParam as number | null,
+        fetchSize,
+      });
+      return page;
+    },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    refetchOnWindowFocus: false,
+  });
 
-    const pages = (data as unknown as { pages?: ItemsPage[] })?.pages;
-    const flatData = useMemo(() => pages?.flatMap((page) => page.items) ?? [], [pages]);
-    const totalDBRowCount = pages?.[0]?.total ?? undefined;
+  const pages = (data as { pages?: ItemsPage[] })?.pages;
+  const flatData = useMemo(
+    () => pages?.flatMap((page) => page.items) ?? [],
+    [pages],
+  );
+  const totalDBRowCount = pages?.[0]?.total ?? undefined;
   const totalFetched = flatData.length;
 
   const fetchMoreOnBottomReached = useCallback(
@@ -92,7 +165,7 @@ const Table = () => {
         }
       }
     },
-    [fetchNextPage, isFetching, totalFetched, totalDBRowCount]
+    [fetchNextPage, isFetching, totalFetched, totalDBRowCount],
   );
 
   useEffect(() => {
@@ -131,35 +204,31 @@ const Table = () => {
   }
 
   return (
-    <Box>
-      <Typography variant="body2" mb={1}>
-        ({flatData.length} of {totalDBRowCount ?? "?"} rows fetched)
-      </Typography>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
+        <Typography variant="body1">
+          {flatData.length} of {totalDBRowCount ?? "?"} rows fetched
+        </Typography>
+      </Box>
 
       <Paper variant="outlined">
         <TableContainer
           onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
           ref={tableContainerRef}
-          sx={{ height: 600, overflow: "auto", position: "relative" }}
+          sx={{ maxHeight: 600 }}
         >
           <MuiTable
-            component="div"
-            sx={{ display: "grid" }}
-            aria-label="data table"
           >
             <MuiTableHead
-              component="div"
-              sx={{ position: "sticky", top: 0, zIndex: 1 }}
+              sx={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "background.paper" }}
             >
               {table.getHeaderGroups().map((headerGroup) => (
                 <MuiTableRow
-                  component="div"
                   key={headerGroup.id}
                   sx={{ display: "flex", width: "100%" }}
                 >
                   {headerGroup.headers.map((header) => (
                     <MuiTableCell
-                      component="div"
                       key={header.id}
                       sx={{
                         display: "flex",
@@ -179,7 +248,6 @@ const Table = () => {
             </MuiTableHead>
 
             <MuiTableBody
-              component="div"
               sx={{
                 height: `${rowVirtualizer.getTotalSize()}px`,
                 position: "relative",
@@ -191,7 +259,7 @@ const Table = () => {
                 if (!row) return null;
                 return (
                   <MuiTableRow
-                    component="div"
+                    hover
                     data-index={virtualRow.index}
                     ref={(node: HTMLElement | null) =>
                       rowVirtualizer.measureElement(node)
@@ -206,10 +274,10 @@ const Table = () => {
                   >
                     {row.getVisibleCells().map((cell) => (
                       <MuiTableCell
-                        component="div"
                         key={cell.id}
                         sx={{
                           display: "flex",
+                          cursor: "pointer",
                           width: cell.column.getSize()
                             ? `${cell.column.getSize()}px`
                             : "auto",
@@ -235,8 +303,8 @@ const Table = () => {
           <Typography variant="body2">Fetching more...</Typography>
         </Box>
       )}
-    </Box>
+    </Container>
   );
-}
+};
 
 export default Table;

@@ -7,7 +7,7 @@ export function attachWebsocketServer(server: http.Server) {
   wss = new WebSocketServer({ server, path: "/ws" });
 
   wss.on("connection", (socket) => {
-	console.log(`Received a new connection.`);
+    console.log(`Received a new connection.`);
     socket.on("message", (msg) => {
       try {
         socket.send(JSON.stringify({ type: "echo", payload: msg.toString() }));

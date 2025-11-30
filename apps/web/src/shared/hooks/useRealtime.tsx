@@ -1,27 +1,30 @@
 import { useEffect, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import WSClient from "../realtime/wsClient";
-import { Item } from "../../features/table/types";
+import { Item, ItemsPage } from "../../features/table/types";
 
 // Helper: merge an incoming item into the react-query infinite list cache
-function mergeItemIntoCache(queryClient: any, incoming: Item) {
+function mergeItemIntoCache(queryClient: QueryClient, incoming: Item) {
   const key = ["items"] as const;
-  const current = queryClient.getQueryData(key) as any;
+  const current = queryClient.getQueryData(key) as { pages: ItemsPage[]};
   if (!current) return;
-  const pages = (current.pages || []).map((page: any) => {
-    const items = (page.items || []).map((it: any) => {
+  const pages = (current.pages || []).map((page) => {
+    const items = (page.items || []).map((it) => {
       if (it.id !== incoming.id) return it;
 
-      const existingVersion = (it as any).version ?? 0;
-      const incomingVersion = (incoming as any).version ?? 0;
+      const existingVersion = it.version ?? 0;
+      const incomingVersion = incoming.version ?? 0;
 
-      const pending = (it as any).__pending;
+      const pending = it.__pending;
 
       if (pending) {
         // Another update was in-flight from this client when a server update arrived.
         const pendingPatch = pending.patch || {};
         const patchMatches = Object.keys(pendingPatch).every((k) => {
-          return (incoming as any)[k] === pendingPatch[k] || (incoming as any).data?.[k] === pendingPatch[k];
+          return (
+            incoming[k as keyof Item] === pendingPatch[k as keyof Item] ||
+            (incoming as any).data?.[k] === pendingPatch[k as keyof Item]
+          );
         });
 
         if (patchMatches) {
@@ -39,14 +42,17 @@ function mergeItemIntoCache(queryClient: any, incoming: Item) {
       }
 
       // no pending: apply incoming if newer
-      if (incomingVersion >= existingVersion) return { ...it, ...incoming, __conflict: false };
+      if (incomingVersion >= existingVersion)
+        return { ...it, ...incoming, __conflict: false };
       return it;
     });
     return { ...page, items };
   });
 
   // if the item wasn't found in any page, inject into first page (newly created)
-  const found = pages.some((p: any) => p.items.some((it: any) => it.id === incoming.id));
+  const found = pages.some((p: ItemsPage) =>
+    p.items.some((it) => it.id === incoming.id)
+  );
   if (!found) {
     if (pages.length > 0) {
       pages[0] = { ...pages[0], items: [incoming, ...pages[0].items] };
@@ -64,7 +70,7 @@ export default function useRealtime() {
   const wsUrl = useMemo(() => {
     const loc = window.location;
     const protocol = loc.protocol === "https:" ? "wss:" : "ws:";
-    const port = '4000';
+    const port = "4000";
     return `${protocol}//${loc.hostname}:${port}/ws`;
   }, []);
 
@@ -93,7 +99,7 @@ export default function useRealtime() {
         } catch (e) {
           // ignore parse errors
           // eslint-disable-next-line no-console
-          console.error('Failed to apply incoming item', e);
+          console.error("Failed to apply incoming item", e);
         }
       }
     });

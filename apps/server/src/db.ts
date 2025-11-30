@@ -25,6 +25,10 @@ export async function initDb() {
   `);
 
   // ensure columns exist for older DBs
-  await pool.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE`);
-  await pool.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS version BIGINT DEFAULT 1`);
+  await pool.query(
+    `ALTER TABLE items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE`,
+  );
+  await pool.query(
+    `ALTER TABLE items ADD COLUMN IF NOT EXISTS version BIGINT DEFAULT 1`,
+  );
 }

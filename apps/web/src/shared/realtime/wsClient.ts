@@ -23,13 +23,13 @@ export default class WSClient {
     try {
       this.ws = new WebSocket(this.url);
     } catch (err) {
-      console.warn('[WS] connect error', err);
+      console.warn("[WS] connect error", err);
       this.scheduleReconnect();
       return;
     }
 
     this.ws.onopen = () => {
-      console.debug('[WS] connected');
+      console.debug("[WS] connected");
       this.reconnectDelay = 1000;
     };
 
@@ -40,16 +40,16 @@ export default class WSClient {
           try {
             h(msg);
           } catch (e) {
-            console.error('WS handler error', e);
+            console.error("WS handler error", e);
           }
         }
       } catch (e) {
-        console.error('Failed to parse WS message', e);
+        console.error("Failed to parse WS message", e);
       }
     };
 
     this.ws.onclose = (ev) => {
-      console.debug('[WS] closed', ev && (ev as any).code);
+      console.debug("[WS] closed", ev && ev.code);
       if (this.shouldReconnect) this.scheduleReconnect();
     };
 
@@ -65,11 +65,11 @@ export default class WSClient {
 
   private scheduleReconnect() {
     // eslint-disable-next-line no-console
-    console.debug('[WS] schedule reconnect in', this.reconnectDelay);
+    console.debug("[WS] schedule reconnect in", this.reconnectDelay);
     setTimeout(() => {
       if (!this.shouldReconnect) return;
       // eslint-disable-next-line no-console
-      console.debug('[WS] reconnecting...');
+      console.debug("[WS] reconnecting...");
       this._connect();
       this.reconnectDelay = Math.min(this.reconnectDelay * 1.5, this.maxDelay);
     }, this.reconnectDelay);

@@ -1,7 +1,9 @@
 import React from "react";
 import useRealtime from "../hooks/useRealtime";
 
-const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   useRealtime();
   return <>{children}</>;
 };

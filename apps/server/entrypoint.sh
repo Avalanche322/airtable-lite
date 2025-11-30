@@ -7,4 +7,4 @@ if [ "$SEED" = "true" ]; then
 fi
 
 echo "Starting server..."
-node dist/index.js
+node dist/app.js

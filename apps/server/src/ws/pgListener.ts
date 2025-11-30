@@ -1,8 +1,9 @@
-import { pool } from './db';
-import { broadcast } from './ws';
-import { SERVER_ID } from './serverId';
+import { pool } from "../db";
+import { broadcast } from "./ws";
+import { SERVER_ID } from "../utiles/serverId";
+import { PoolClient } from "pg";
 
-let listeningClient: any = null;
+let listeningClient: PoolClient | null = null;
 let shouldRun = false;
 let reconnectTimer: NodeJS.Timeout | null = null;
 let currentBackoff = 1000;
@@ -11,7 +12,7 @@ const MAX_BACKOFF = 30000;
 
 function clearReconnectTimer() {
   if (reconnectTimer) {
-    clearTimeout(reconnectTimer as any);
+    clearTimeout(reconnectTimer);
     reconnectTimer = null;
   }
 }
@@ -22,9 +23,9 @@ async function attemptConnect() {
     listeningClient = client;
 
     // Listen for notifications
-    await client.query('LISTEN items');
+    await client.query("LISTEN items");
 
-    client.on('notification', (msg: any) => {
+    client.on("notification", (msg: any) => {
       try {
         if (!msg || !msg.payload) return;
         const parsed = JSON.parse(msg.payload);
@@ -32,20 +33,20 @@ async function attemptConnect() {
         broadcast(parsed);
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.error('pgListener notification error', e);
+        console.error("pgListener notification error", e);
       }
     });
 
-    client.on('error', (err: any) => {
+    client.on("error", (err: any) => {
       // eslint-disable-next-line no-console
-      console.error('pgListener client error', err);
+      console.error("pgListener client error", err);
       scheduleReconnect();
     });
 
-    client.on('end', () => {
+    client.on("end", () => {
       // connection ended, try to reconnect
       // eslint-disable-next-line no-console
-      console.warn('pgListener connection ended');
+      console.warn("pgListener connection ended");
       scheduleReconnect();
     });
 
@@ -55,7 +56,7 @@ async function attemptConnect() {
     console.log('Postgres LISTEN/NOTIFY listener started on channel "items"');
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.error('Failed to start pg listener', e);
+    console.error("Failed to start pg listener", e);
     scheduleReconnect();
   }
 }
@@ -101,7 +102,7 @@ export async function stopPgListener() {
   try {
     if (listeningClient) {
       try {
-        await listeningClient.query('UNLISTEN items');
+        await listeningClient.query("UNLISTEN items");
       } catch (_) {
         /* ignore */
       }
@@ -119,6 +120,6 @@ export async function stopPgListener() {
     }
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.warn('Error stopping pg listener', e);
+    console.warn("Error stopping pg listener", e);
   }
 }

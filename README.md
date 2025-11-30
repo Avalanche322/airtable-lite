@@ -42,55 +42,30 @@ Run Postgres + BFF (dev) + frontend (dev):
 docker compose up -d db
 ```
 
-2. Start the BFF (dev) — node 1:
+2. Start local BFF and FE (dev):
+
+```bash
+# run frontend and backend from the root
+pnpm run dev
+```
+
+3. (Optional) Start local BFF or FE (dev):
 
 ```bash
 cd apps/server
-# run on port 4000 and give this instance an id
-PORT=4000 SERVER_ID=node-1 pnpm dev
+# run frontend
+pnpm run dev
 ```
 
-3. Start a second BFF instance (node 2) for multi-node testing:
-
-```bash
-cd apps/server
-# run on port 4001 and give this instance a different id
-PORT=4001 SERVER_ID=node-2 pnpm dev
-```
-
-4. Start two frontend dev servers (or run one dev server and a second static build) — the frontend code uses a hard-coded API base by default. For quick multi-node testing you can temporarily edit the API base URL in `apps/web/src/shared/utiles/httpService.ts` before running the second frontend instance.
-
-Example: open two terminals and in one set API to port 4000, in the other set API to port 4001.
-
-Edit `apps/web/src/shared/utiles/httpService.ts` and change the `baseURL` to the desired backend before starting dev:
-
-```ts
-// apps/web/src/shared/utiles/httpService.ts
-import axios from 'axios';
-
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:4000/api', // change to 4001 for second frontend
-});
-
-export default {
-  get: axiosInstance.get,
-  post: axiosInstance.post,
-  put: axiosInstance.put,
-  delete: axiosInstance.delete,
-  patch: axiosInstance.patch,
-};
-```
-
-Then run:
+or
 
 ```bash
 cd apps/web
-pnpm dev
+# run frontend
+pnpm run dev
 ```
 
-Repeat for the second frontend terminal (with baseURL pointing to the other BFF port).
-
-Open each dev server in a separate browser window/tab and navigate to the app URL shown by Vite (typically `http://localhost:5173`).
+Navigate to the app URL shown by Vite (typically `http://localhost:5173`).
 
 ---
 
@@ -146,6 +121,7 @@ When running via Docker Compose the service is configured to run the seed when t
 ## Architecture (brief)
 
 - BFF: `apps/server/src`
+
   - `index.ts` — Express HTTP endpoints and WebSocket attach
   - `db.ts` — pg Pool helper and DB initialization
   - `pgListener.ts` — LISTEN/NOTIFY listener with reconnect/backoff
@@ -165,3 +141,4 @@ When running via Docker Compose the service is configured to run the seed when t
 - NOTIFY payload size is limited by Postgres — for very large `data` JSONB we should send only `id`/`version` and let nodes fetch full rows on demand.
 - Conflict resolution is manual (user clicks the badge to accept server value). We could provide merge/keep-my-change UI or auto-merge heuristics.
 - Tests are not included yet — unit tests for merge/optimistic logic and an E2E smoke script would be valuable.
+- Get the columns/filters as metadata from the API rather than hardcoding them on the frontend.

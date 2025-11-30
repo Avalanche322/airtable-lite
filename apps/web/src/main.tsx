@@ -10,9 +10,9 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("app")!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme} defaultMode="dark">
       <QueryClientProvider client={queryClient}>
-        <CssBaseline />
+        <CssBaseline enableColorScheme />
         <RealtimeProvider>
           <App />
         </RealtimeProvider>
